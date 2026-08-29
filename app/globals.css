@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --paper:   #F2F4F3;
+  --card:    #FFFFFF;
+  --ink:     #16211F;
+  --muted:   #6B7A77;
+  --line:    #DDE4E2;
+
+  --bo:      #1F5C6E;   /* xanh cổ vịt */
+  --me:      #7B4B8A;   /* tím mận */
+  --chi:     #5A7247;   /* ô liu */
+  --chung:   #4A6B7C;
+  --unknown: #A08B5B;   /* vàng đất */
+
+  --action:  #0E6B5C;
+  --danger:  #A33B32;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Số tiền: chữ số cùng bề rộng để cột tiền thẳng hàng */
+.num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Phần chưa gán người trả: gạch chéo như ô còn bỏ trống trong sổ */
+.hatch {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--unknown) 0 4px,
+    color-mix(in srgb, var(--unknown) 40%, white) 4px 8px
+  );
+}
+
+button, a, input, select { -webkit-tap-highlight-color: transparent; }
+
+*:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
