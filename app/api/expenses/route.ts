@@ -46,7 +46,6 @@ export async function POST(req: NextRequest) {
     title: String(b.title).trim(),
     amount,
     payer: String(b.payer || "Chưa rõ"),
-    method: b.method ? String(b.method) : "Chuyển khoản",
     note: String(b.note || "").trim(),
     createdAt: new Date().toISOString(),
   };

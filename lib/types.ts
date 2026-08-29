@@ -1,12 +1,6 @@
 export const PAYERS = ["Bố", "Mẹ", "Chị", "Chung"] as const;
 export type Payer = (typeof PAYERS)[number];
 
-export const METHODS = ["Chuyển khoản", "Tiền mặt"] as const;
-export const METHOD_COLOR: Record<string, string> = {
-  "Chuyển khoản": "#2196F3",
-  "Tiền mặt": "#4CAF50",
-};
-
 /** Danh mục chi — chia nhỏ để dễ soi tháng nào tăng ở đâu. */
 export const CATEGORIES = [
   "Con học",
@@ -50,7 +44,6 @@ export type Expense = {
   title: string;
   amount: number;     // nghìn đồng
   payer: string;
-  method?: string;    // "Chuyển khoản" | "Tiền mặt"
   note: string;
   createdAt: string;
 };
@@ -61,7 +54,8 @@ export type CashLine = {
   month: string;
   label: string;
   amount: number;
-  type?: "tm_me" | "tm_bo" | "ck_me" | "ck_bo" | "cash";
+  type?: "cash" | "ck";
+  payer?: string;
   createdAt: string;
 };
 

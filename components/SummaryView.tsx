@@ -39,9 +39,9 @@ export default function SummaryView({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col lg:flex-row gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         {/* Bảng 1: Ai chi bao nhiêu */}
-        <div className="w-full lg:w-[500px] rounded-xl bg-white border border-[var(--line)] shadow-sm overflow-hidden">
+        <div className="w-full rounded-xl bg-white border border-[var(--line)] shadow-sm overflow-hidden">
           <div className="bg-[var(--paper)] px-4 py-3 border-b border-[var(--line)]">
             <h2 className="text-[14px] font-bold uppercase text-center">Ai chi bao nhiêu</h2>
           </div>
@@ -91,7 +91,7 @@ export default function SummaryView({
       </div>
 
       {/* Bảng 2: Theo nhóm */}
-      <div className="w-full lg:w-[600px] rounded-xl bg-white border border-[var(--line)] shadow-sm overflow-hidden">
+      <div className="w-full rounded-xl bg-white border border-[var(--line)] shadow-sm overflow-hidden">
         <div className="bg-[var(--paper)] px-4 py-3 border-b border-[var(--line)]">
           <h2 className="text-[14px] font-bold uppercase text-center">Theo nhóm</h2>
         </div>

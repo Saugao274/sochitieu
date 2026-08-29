@@ -38,9 +38,29 @@ export async function POST(req: NextRequest) {
     label: String(b.label).trim(),
     amount,                       // âm = tiền ra
     type: b.type || "cash",
+    payer: b.payer || "Chưa rõ",
     createdAt: new Date().toISOString(),
   };
   const col = await cashCol();
   const r = await col.insertOne(doc);
-  return NextResponse.json({ ...doc, _id: String(r.insertedId) }, { status: 201 });
+  const line = { ...doc, _id: String(r.insertedId) };
+
+  let expense = null;
+  if (amount < 0) {
+    const { expensesCol } = await import("@/lib/db");
+    const ecol = await expensesCol();
+    const edoc = {
+      month: String(b.month),
+      category: "Chi khác", // Mặc định là chi khác
+      title: b.type === "cash" ? "Chi tiền mặt" : String(b.label).trim(), // Nếu là tiền mặt thì tên là "Chi tiền mặt" để khớp với logic cũ
+      amount: Math.abs(amount),
+      payer: String(b.payer || "Chưa rõ"),
+      note: `Tự động tạo từ Sổ quỹ: ${String(b.label).trim()}`,
+      createdAt: new Date().toISOString(),
+    };
+    const er = await ecol.insertOne(edoc);
+    expense = { ...edoc, _id: String(er.insertedId) };
+  }
+
+  return NextResponse.json({ line, expense }, { status: 201 });
 }

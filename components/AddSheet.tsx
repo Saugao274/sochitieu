@@ -1,29 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { CATEGORIES, CAT_COLOR, PAYERS, PAYER_COLOR, METHODS, METHOD_COLOR, toDong } from "@/lib/types";
+import { Expense, CATEGORIES, CAT_COLOR, PAYERS, PAYER_COLOR, toDong } from "@/lib/types";
 import FormattedInput from "./FormattedInput";
 
 export default function AddSheet({
   onClose,
   onAdd,
+  initial,
 }: {
   onClose: () => void;
   onAdd: (d: {
     title: string;
     amount: number;
     payer: string;
-    method: string;
     category: string;
     note: string;
   }) => Promise<void>;
+  initial?: Expense;
 }) {
-  const [title, setTitle] = useState("");
-  const [amount, setAmount] = useState("");
-  const [payer, setPayer] = useState<string>("Mẹ");
-  const [method, setMethod] = useState<string>("Chuyển khoản");
-  const [category, setCategory] = useState<string>("Chợ siêu thị");
-  const [note, setNote] = useState("");
+  const [title, setTitle] = useState(initial?.title || "");
+  const [amount, setAmount] = useState(initial ? String(initial.amount) : "");
+  const [payer, setPayer] = useState<string>(initial?.payer || "Mẹ");
+  const [category, setCategory] = useState<string>(initial?.category || "Chợ siêu thị");
+  const [note, setNote] = useState(initial?.note || "");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
@@ -38,7 +38,7 @@ export default function AddSheet({
     setBusy(true);
     setErr("");
     try {
-      await onAdd({ title: title.trim(), amount: n, payer, method, category, note: note.trim() });
+      await onAdd({ title: title.trim(), amount: n, payer, category, note: note.trim() });
       onClose();
     } catch (e: any) {
       setErr(e?.message || "Chưa lưu được. Thử lại.");
@@ -95,26 +95,6 @@ export default function AddSheet({
               }
             >
               {p}
-            </button>
-          ))}
-        </div>
-
-        <label className="mt-4 block text-[12px] font-semibold text-[var(--muted)]">
-          Hình thức
-        </label>
-        <div className="mt-1.5 flex flex-wrap gap-1.5">
-          {METHODS.map((m) => (
-            <button
-              key={m}
-              onClick={() => setMethod(m)}
-              className="rounded-full border px-3.5 py-2 text-[14px]"
-              style={
-                method === m
-                  ? { background: METHOD_COLOR[m], borderColor: METHOD_COLOR[m], color: "white" }
-                  : { borderColor: "var(--line)" }
-              }
-            >
-              {m}
             </button>
           ))}
         </div>

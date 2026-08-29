@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CashLine, fmtK, toDong, sumBy } from "@/lib/types";
+import { CashLine, fmtK, toDong, sumBy, PAYERS, PAYER_COLOR } from "@/lib/types";
 import FormattedInput from "./FormattedInput";
 
 export default function CashLedger({
@@ -14,13 +14,14 @@ export default function CashLedger({
 }: {
   title: string;
   lines: CashLine[];
-  onAdd: (label: string, amount: number) => Promise<void>;
+  onAdd: (label: string, amount: number, payer: string) => Promise<void>;
   onDelete: (id: string) => void;
   linkedAmount?: number | null;
   onSync?: (total: number) => void;
 }) {
   const [label, setLabel] = useState("");
   const [amount, setAmount] = useState("");
+  const [payer, setPayer] = useState<string>(PAYERS[0]);
   const [out, setOut] = useState(false);   // true = tiền ra
   const [err, setErr] = useState("");
 
@@ -34,12 +35,12 @@ export default function CashLedger({
       return;
     }
     setErr("");
-    await onAdd(label.trim(), out ? -Math.abs(n) : Math.abs(n));
+    await onAdd(label.trim(), out ? -Math.abs(n) : Math.abs(n), payer);
     setLabel("");
     setAmount("");
   }
 
-  const lech = linkedAmount != null && linkedAmount !== total;
+  const lech = linkedAmount != null && linkedAmount !== Math.abs(total);
 
   return (
     <div className="space-y-4">
@@ -63,7 +64,10 @@ export default function CashLedger({
               return (
                 <li key={l._id} className="flex items-center gap-3 py-2.5">
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[14px]">{l.label}</span>
+                    <span className="block truncate text-[14px]">
+                      {l.label}
+                      {l.payer && <span className="ml-2 inline-block px-1.5 py-0.5 rounded text-[11px] font-semibold border" style={{ borderColor: PAYER_COLOR[l.payer] || "var(--line)", color: PAYER_COLOR[l.payer] || "inherit" }}>{l.payer}</span>}
+                    </span>
                     <span className="num block text-[11px] text-[var(--muted)]">
                       còn lại {fmtK(running)}
                     </span>
@@ -139,6 +143,23 @@ export default function CashLedger({
           placeholder="dư tháng trước, lĩnh, ck..."
           className="mt-2.5 w-full rounded-lg border border-[var(--line)] px-3 py-2 text-[15px]"
         />
+
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
+          {PAYERS.map((p) => (
+            <button
+              key={p}
+              onClick={() => setPayer(p)}
+              className="rounded-full border px-3 py-1.5 text-[13px]"
+              style={
+                payer === p
+                  ? { background: PAYER_COLOR[p], borderColor: PAYER_COLOR[p], color: "white" }
+                  : { borderColor: "var(--line)" }
+              }
+            >
+              {p}
+            </button>
+          ))}
+        </div>
 
         <div className="mt-2.5 flex gap-2">
           <button

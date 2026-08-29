@@ -93,15 +93,18 @@ export default function MonthView({ month }: { month: string }) {
     await fetch(`/api/expenses/${id}`, { method: "DELETE" });
   }
 
-  async function addCash(label: string, amount: number, type: string = "cash") {
+  async function addCash(label: string, amount: number, type: string = "cash", payer: string) {
     const r = await fetch("/api/cash", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ month, label, amount, type }),
+      body: JSON.stringify({ month, label, amount, type, payer }),
     });
     if (r.ok) {
-      const line = await r.json();
-      setCash((v) => [...v, line]);
+      const body = await r.json();
+      setCash((v) => [...v, body.line]);
+      if (body.expense) {
+        setItems((v) => [...(v || []), body.expense]);
+      }
     }
   }
 
@@ -136,8 +139,13 @@ export default function MonthView({ month }: { month: string }) {
 
   const cashExpense = items?.find((e) => e.title === CASH_TITLE) || null;
 
+  const [editing, setEditing] = useState<Expense | null>(null);
+
+  // ... (inside the component body)
+  
   return (
     <main className="mx-auto min-h-dvh max-w-[1200px] pb-28">
+      {/* ... header ... */}
       <header className="sticky top-0 z-20 border-b border-[var(--line)] bg-[var(--paper)]/95 backdrop-blur">
         <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-3">
           <div className="flex items-center gap-3">
@@ -223,6 +231,7 @@ export default function MonthView({ month }: { month: string }) {
             items={items}
             remove={remove}
             setAdding={setAdding}
+            setEditing={setEditing}
           />
         ) : tab === "summary" ? (
           <SummaryView items={items} history={history} />
@@ -237,6 +246,16 @@ export default function MonthView({ month }: { month: string }) {
       </div>
 
       {adding && <AddSheet onClose={() => setAdding(false)} onAdd={add} />}
+      {editing && (
+        <AddSheet
+          initial={editing}
+          onClose={() => setEditing(null)}
+          onAdd={async (d) => {
+            await patch(editing._id, d);
+            setEditing(null);
+          }}
+        />
+      )}
     </main>
   );
 }

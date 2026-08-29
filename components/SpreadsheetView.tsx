@@ -7,11 +7,13 @@ export default function SpreadsheetView({
   items,
   remove,
   setAdding,
+  setEditing,
 }: {
   month: string;
   items: Expense[];
   remove: (id: string) => Promise<void>;
   setAdding: (b: boolean) => void;
+  setEditing: (e: Expense) => void;
 }) {
   return (
     <div className="w-full">
@@ -32,7 +34,6 @@ export default function SpreadsheetView({
               <th className="px-4 py-3 font-semibold">Nội dung</th>
               <th className="px-4 py-3 font-semibold text-right">Số tiền</th>
               <th className="px-4 py-3 font-semibold text-center">Người chi</th>
-              <th className="px-4 py-3 font-semibold text-center">Hình thức</th>
               <th className="px-4 py-3 font-semibold">Ghi chú gốc</th>
               <th className="px-4 py-3 font-semibold text-center">Hành động</th>
             </tr>
@@ -52,15 +53,14 @@ export default function SpreadsheetView({
                 <td className="px-4 py-2.5">{e.title}</td>
                 <td className="px-4 py-2.5 text-right font-semibold num">{fmtK(e.amount)}</td>
                 <td className="px-4 py-2.5 text-center">{e.payer}</td>
-                <td className="px-4 py-2.5 text-center">
-                  <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold border ${
-                    (!e.method || e.method === "Chuyển khoản") ? "border-[#2196F3] text-[#2196F3]" : "border-[#4CAF50] text-[#4CAF50]"
-                  }`}>
-                    {e.method || "Chuyển khoản"}
-                  </span>
-                </td>
                 <td className="px-4 py-2.5 text-[var(--muted)]">{e.note}</td>
                 <td className="px-4 py-2.5 text-center">
+                  <button
+                    onClick={() => setEditing(e)}
+                    className="text-[var(--action)] hover:underline mr-4 font-semibold"
+                  >
+                    Sửa
+                  </button>
                   <button
                     onClick={() => {
                       if (confirm(`Xoá khoản "${e.title}"?`)) remove(e._id);
@@ -74,7 +74,7 @@ export default function SpreadsheetView({
             ))}
             {items.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-[var(--muted)]">
+                <td colSpan={6} className="px-4 py-8 text-center text-[var(--muted)]">
                   Chưa có khoản chi nào
                 </td>
               </tr>
