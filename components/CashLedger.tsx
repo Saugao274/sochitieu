@@ -8,6 +8,7 @@ export default function CashLedger({
   title,
   lines,
   onAdd,
+  onUpdate,
   onDelete,
   linkedAmount,
   onSync,
@@ -15,10 +16,12 @@ export default function CashLedger({
   title: string;
   lines: CashLine[];
   onAdd: (label: string, amount: number, payer: string) => Promise<void>;
+  onUpdate: (id: string, label: string, amount: number, payer: string) => Promise<void>;
   onDelete: (id: string) => void;
   linkedAmount?: number | null;
   onSync?: (total: number) => void;
 }) {
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [label, setLabel] = useState("");
   const [amount, setAmount] = useState("");
   const [payer, setPayer] = useState<string>(PAYERS[0]);
@@ -28,14 +31,34 @@ export default function CashLedger({
   const total = sumBy(lines, (l) => l.amount);
   let running = 0;
 
-  async function add() {
+  async function save() {
     const n = Number(amount);
     if (!label.trim() || !Number.isFinite(n) || n === 0) {
       setErr("Cần điền nội dung và số tiền khác 0.");
       return;
     }
     setErr("");
-    await onAdd(label.trim(), out ? -Math.abs(n) : Math.abs(n), payer);
+    const finalAmt = out ? -Math.abs(n) : Math.abs(n);
+    if (editingId) {
+      await onUpdate(editingId, label.trim(), finalAmt, payer);
+      setEditingId(null);
+    } else {
+      await onAdd(label.trim(), finalAmt, payer);
+    }
+    setLabel("");
+    setAmount("");
+  }
+
+  function startEdit(l: CashLine) {
+    setEditingId(l._id);
+    setLabel(l.label);
+    setAmount(String(Math.abs(l.amount)));
+    setOut(l.amount < 0);
+    setPayer(l.payer || PAYERS[0]);
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
     setLabel("");
     setAmount("");
   }
@@ -79,6 +102,12 @@ export default function CashLedger({
                     {isOut ? "" : "+"}
                     {fmtK(l.amount)}
                   </span>
+                  <button
+                    onClick={() => startEdit(l)}
+                    className="px-2 text-[13px] font-semibold text-[var(--action)] hover:underline"
+                  >
+                    Sửa
+                  </button>
                   <button
                     onClick={() => {
                       if (confirm(`Xoá dòng "${l.label}"?`)) onDelete(l._id);
@@ -132,9 +161,9 @@ export default function CashLedger({
         </section>
       )}
 
-      <section className="rounded-xl bg-[var(--paper)] border border-[var(--line)] p-4 shadow-sm">
+      <section className={`rounded-xl bg-[var(--paper)] border p-4 shadow-sm ${editingId ? 'border-[var(--action)]' : 'border-[var(--line)]'}`}>
         <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--muted)]">
-          Thêm dòng vào {title}
+          {editingId ? `Sửa dòng trong ${title}` : `Thêm dòng vào ${title}`}
         </h3>
 
         <input
@@ -193,12 +222,22 @@ export default function CashLedger({
 
         {err && <p className="mt-2 text-[14px] text-[var(--danger)]">{err}</p>}
 
-        <button
-          onClick={add}
-          className="mt-3 w-full rounded-lg bg-[var(--ink)] py-3 text-[15px] font-semibold text-white"
-        >
-          Thêm vào sổ quỹ
-        </button>
+        <div className="mt-3 flex gap-2">
+          {editingId && (
+            <button
+              onClick={cancelEdit}
+              className="flex-1 rounded-lg border border-[var(--line)] py-3 text-[15px] font-semibold"
+            >
+              Huỷ
+            </button>
+          )}
+          <button
+            onClick={save}
+            className={`flex-[2] rounded-lg py-3 text-[15px] font-semibold text-white ${editingId ? 'bg-[var(--action)]' : 'bg-[var(--ink)]'}`}
+          >
+            {editingId ? "Lưu thay đổi" : "Thêm vào sổ quỹ"}
+          </button>
+        </div>
       </section>
     </div>
   );

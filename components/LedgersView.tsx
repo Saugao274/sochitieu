@@ -7,11 +7,13 @@ export default function LedgersView({
   items,
   cash,
   addCash,
+  updateCash,
   delCash,
 }: {
   items: Expense[];
   cash: CashLine[];
   addCash: (label: string, amount: number, type: string, payer: string) => Promise<void>;
+  updateCash: (id: string, label: string, amount: number, payer: string) => Promise<void>;
   delCash: (id: string) => Promise<void>;
 }) {
   return (
@@ -20,12 +22,14 @@ export default function LedgersView({
         title="Tiền mặt"
         lines={cash.filter((c) => !c.type || c.type === "cash" || c.type.startsWith("tm_"))}
         onAdd={(l, a, p) => addCash(l, a, "cash", p)}
+        onUpdate={updateCash}
         onDelete={delCash}
       />
       <CashLedger
         title="Chuyển khoản"
         lines={cash.filter((c) => c.type === "ck" || c.type?.startsWith("ck_"))}
         onAdd={(l, a, p) => addCash(l, a, "ck", p)}
+        onUpdate={updateCash}
         onDelete={delCash}
       />
     </div>

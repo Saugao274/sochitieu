@@ -108,6 +108,15 @@ export default function MonthView({ month }: { month: string }) {
     }
   }
 
+  async function updateCash(id: string, label: string, amount: number, payer: string) {
+    setCash((v) => v.map((l) => (l._id === id ? { ...l, label, amount, payer } : l)));
+    await fetch(`/api/cash/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ label, amount, payer }),
+    });
+  }
+
   async function delCash(id: string) {
     setCash((v) => v.filter((l) => l._id !== id));
     await fetch(`/api/cash/${id}`, { method: "DELETE" });
@@ -240,6 +249,7 @@ export default function MonthView({ month }: { month: string }) {
             items={items}
             cash={cash} 
             addCash={addCash} 
+            updateCash={updateCash}
             delCash={delCash} 
           />
         )}
