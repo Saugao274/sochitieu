@@ -4,6 +4,13 @@ import MonthView from "@/components/MonthView";
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata({ params }: { params: Promise<{ month: string }> }) {
+  const { month } = await params;
+  return {
+    title: `Tháng ${month} - Sổ chi tiêu`,
+  };
+}
+
 export default async function MonthPage({
   params,
 }: {
