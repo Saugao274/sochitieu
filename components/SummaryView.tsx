@@ -2,7 +2,7 @@
 
 import { Expense, fmtK, sumBy, PAYERS, CATEGORIES } from "@/lib/types";
 import { useMemo } from "react";
-import Charts from "./Charts";
+import { PieChartDash, BarChartDash } from "./Charts";
 
 export default function SummaryView({
   items,
@@ -39,6 +39,17 @@ export default function SummaryView({
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Hàng 1: Dashboard Pie chart bên trái, Bar chart bên phải */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+        <PieChartDash items={items} />
+        {history.length > 1 ? (
+          <BarChartDash history={history} />
+        ) : (
+          <div className="hidden lg:block" />
+        )}
+      </div>
+
+      {/* Hàng 2: Ai chi bao nhiêu bên trái, Theo nhóm bên phải */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         {/* Bảng 1: Ai chi bao nhiêu */}
         <div className="w-full rounded-xl bg-white border border-[var(--line)] shadow-sm overflow-hidden">
@@ -79,46 +90,36 @@ export default function SummaryView({
           </table>
         </div>
 
-        {/* Biểu đồ (Dashboard) */}
-        <div className="w-full lg:w-auto flex-1 rounded-xl bg-white border border-[var(--line)] shadow-sm overflow-hidden">
-           <div className="bg-[var(--paper)] px-4 py-3 border-b border-[var(--line)]">
-             <h2 className="text-[14px] font-bold uppercase text-center">Dashboard (Biểu đồ)</h2>
-           </div>
-           <div>
-             <Charts items={items} history={history} />
-           </div>
-        </div>
-      </div>
-
-      {/* Bảng 2: Theo nhóm */}
-      <div className="w-full rounded-xl bg-white border border-[var(--line)] shadow-sm overflow-hidden">
-        <div className="bg-[var(--paper)] px-4 py-3 border-b border-[var(--line)]">
-          <h2 className="text-[14px] font-bold uppercase text-center">Theo nhóm</h2>
-        </div>
-        <table className="w-full text-center text-[14px]">
-          <thead>
-            <tr className="bg-[#B4C6E7] text-black">
-              <th className="px-4 py-2 border-r border-white">Nhóm</th>
-              <th className="px-4 py-2 border-r border-white">Tổng</th>
-              {PAYERS.map((p) => (
-                <th key={p} className="px-4 py-2 border-r border-white last:border-r-0">{p}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--line)]">
-            {byCat.map(([cat, s]) => (
-              <tr key={cat}>
-                <td className="px-4 py-2 font-semibold border-r border-[var(--line)] text-left">{cat}</td>
-                <td className="px-4 py-2 num font-semibold border-r border-[var(--line)]">{fmtK(s.total)}</td>
+        {/* Bảng 2: Theo nhóm */}
+        <div className="w-full rounded-xl bg-white border border-[var(--line)] shadow-sm overflow-hidden">
+          <div className="bg-[var(--paper)] px-4 py-3 border-b border-[var(--line)]">
+            <h2 className="text-[14px] font-bold uppercase text-center">Theo nhóm</h2>
+          </div>
+          <table className="w-full text-center text-[14px]">
+            <thead>
+              <tr className="bg-[#B4C6E7] text-black">
+                <th className="px-4 py-2 border-r border-white">Nhóm</th>
+                <th className="px-4 py-2 border-r border-white">Tổng</th>
                 {PAYERS.map((p) => (
-                  <td key={p} className="px-4 py-2 num border-r border-[var(--line)] last:border-r-0">
-                    {s[p] ? fmtK(s[p]) : ""}
-                  </td>
+                  <th key={p} className="px-4 py-2 border-r border-white last:border-r-0">{p}</th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-[var(--line)]">
+              {byCat.map(([cat, s]) => (
+                <tr key={cat}>
+                  <td className="px-4 py-2 font-semibold border-r border-[var(--line)] text-left">{cat}</td>
+                  <td className="px-4 py-2 num font-semibold border-r border-[var(--line)]">{fmtK(s.total)}</td>
+                  {PAYERS.map((p) => (
+                    <td key={p} className="px-4 py-2 num border-r border-[var(--line)] last:border-r-0">
+                      {s[p] ? fmtK(s[p]) : ""}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

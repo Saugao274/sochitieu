@@ -14,12 +14,10 @@ import {
   YAxis,
 } from "recharts";
 
-export default function Charts({
+export function PieChartDash({
   items,
-  history,
 }: {
   items: Expense[];
-  history: { month: string; total: number }[];
 }) {
   const [mode, setMode] = useState<"cat" | "payer">("cat");
   const total = sumBy(items, (e) => e.amount);
@@ -42,23 +40,19 @@ export default function Charts({
 
   const parts = mode === "cat" ? byCat : byPayer;
 
-  // Transform history for Recharts
-  const chartHistory = history.map((h) => ({
-    name: "T" + h.month.split("-")[1],
-    total: h.total,
-    label: fmtK(Math.round(h.total / 1000)) + "tr",
-  }));
-
   if (total === 0)
     return (
-      <p className="rounded-xl bg-white p-6 text-center text-[15px] text-[var(--muted)]">
+      <p className="rounded-xl bg-white p-6 text-center text-[15px] text-[var(--muted)] border border-[var(--line)] shadow-sm">
         Chưa có khoản nào để vẽ biểu đồ.
       </p>
     );
 
   return (
-    <div className="space-y-6">
-      <section>
+    <div className="w-full rounded-xl bg-white border border-[var(--line)] shadow-sm overflow-hidden flex flex-col h-full">
+      <div className="bg-[var(--paper)] px-4 py-3 border-b border-[var(--line)]">
+        <h2 className="text-[14px] font-bold uppercase text-center">Dashboard (Biểu đồ)</h2>
+      </div>
+      <div className="p-4 flex-1">
         <div className="flex gap-1.5 justify-center">
           {(
             [
@@ -104,7 +98,7 @@ export default function Charts({
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-10">
             <span className="text-[22px] font-extrabold text-[var(--ink)]">{fmtK(total)}</span>
             <span className="text-[11px] text-[var(--muted)]">nghìn đồng</span>
           </div>
@@ -136,28 +130,44 @@ export default function Charts({
             );
           })}
         </ul>
-      </section>
+      </div>
+    </div>
+  );
+}
 
-      {history.length > 1 && (
-        <section className="pt-4 border-t border-[var(--line)]">
-          <h2 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--muted)] text-center mb-4">
-            So với các tháng trước
-          </h2>
-          <div className="h-[180px] w-full text-[12px] font-semibold">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartHistory} margin={{ top: 10, right: 0, left: -25, bottom: 0 }}>
-                <XAxis dataKey="name" tickLine={false} axisLine={false} />
-                <YAxis tickFormatter={(val) => fmtK(Math.round(val / 1000)) + "tr"} tickLine={false} axisLine={false} />
-                <RechartsTooltip
-                  cursor={{ fill: 'transparent' }}
-                  formatter={(value: any) => [`${fmtK(Number(value) || 0)} nghìn`, "Tổng chi"]}
-                />
-                <Bar dataKey="total" fill="var(--action)" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </section>
-      )}
+export function BarChartDash({
+  history,
+}: {
+  history: { month: string; total: number }[];
+}) {
+  if (history.length <= 1) return null;
+
+  const chartHistory = history.map((h) => ({
+    name: "T" + h.month.split("-")[1],
+    total: h.total,
+    label: fmtK(Math.round(h.total / 1000)) + "tr",
+  }));
+
+  return (
+    <div className="w-full rounded-xl bg-white border border-[var(--line)] shadow-sm overflow-hidden flex flex-col h-full">
+      <div className="bg-[var(--paper)] px-4 py-3 border-b border-[var(--line)]">
+        <h2 className="text-[14px] font-bold uppercase text-center">So với các tháng trước</h2>
+      </div>
+      <div className="p-4 flex-1 flex flex-col justify-center">
+        <div className="h-[250px] w-full text-[12px] font-semibold">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartHistory} margin={{ top: 20, right: 0, left: -25, bottom: 0 }}>
+              <XAxis dataKey="name" tickLine={false} axisLine={false} />
+              <YAxis tickFormatter={(val) => fmtK(Math.round(val / 1000)) + "tr"} tickLine={false} axisLine={false} />
+              <RechartsTooltip
+                cursor={{ fill: 'transparent' }}
+                formatter={(value: any) => [`${fmtK(Number(value) || 0)} nghìn`, "Tổng chi"]}
+              />
+              <Bar dataKey="total" fill="var(--action)" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
     </div>
   );
 }
